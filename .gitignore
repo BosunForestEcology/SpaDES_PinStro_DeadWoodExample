@@ -6,3 +6,4 @@ cache/
 outputs/
 inputs/
 *.Rout
+docs/**/*.html
