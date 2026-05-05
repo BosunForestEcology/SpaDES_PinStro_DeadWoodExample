@@ -30,10 +30,13 @@ DWDTransMat <- matrix(
   dimnames = list(paste0("from_DC", 1:5), paste0("to_DC", 1:5))
 )
 # NOTE: Replace placeholder values above with exact values from Paper 1, Table 2.
+# NOTE: DC1 row sums to 0.96 with DWD_lossProb[DC1] = 0 — verify exact value against paper.
 
 DWD_lossProb <- c(DC1 = 0.00, DC2 = 0.05, DC3 = 0.06, DC4 = 0.14, DC5 = 0.28)
+# NOTE: Replace with exact species-specific values from Paper 1.
 
 snagToDWD_DCmap <- c(DC1 = 1L, DC2 = 2L, DC3 = 2L, DC4 = 3L, DC5 = 4L)
+# NOTE: Confirm DC mapping against Paper 1 methods. DC5 snags enter DWD at DC4 (not DC5).
 
 DRFLookup <- data.table::data.table(
   species = "Pinus strobus",
