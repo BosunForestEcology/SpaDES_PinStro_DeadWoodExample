@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo *)",
+      "Bash(gh api *)",
+      "Bash(dir /B)",
+      "Bash(dir /B modules)"
+    ]
+  }
+}
