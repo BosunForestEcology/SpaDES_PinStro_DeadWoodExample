@@ -1,6 +1,6 @@
 library(testthat)
 
-source(file.path(dirname(dirname(dirname(getwd()))), "modules", "snagDecay", "R", "transition.R"))
+source(file.path(getwd(), "modules", "snagDecay", "R", "transition.R"))
 
 snagTransMat_test <- matrix(
   c(0.48, 0.38, 0.05, 0.00, 0.00,
