@@ -80,13 +80,8 @@ test_that("DWDDecay receive appends fallenSnags with DC remapped", {
 })
 
 test_that("DWDDecay annual DC never decreases (upper-triangular matrix)", {
-  fallen <- data.table(
-    pixelID     = 1:50,
-    species     = "Pinus strobus",
-    DC          = sample(1:3, 50, replace = TRUE),
-    ageInDC     = rep(0L, 50),
-    initBiomass = rep(5.0, 50)
-  )
+  set.seed(77)
+  initial_DCs <- as.integer(sample(1:5, 50, replace = TRUE))
   sim <- testInit(
     "DWDDecay",
     times   = list(start = 0, end = 20),
@@ -95,11 +90,19 @@ test_that("DWDDecay annual DC never decreases (upper-triangular matrix)", {
       snagToDWD_DCmap = snagToDWD_DCmap_test,
       DWD_lossProb    = rep(0, 5)
     )),
-    objects = list(fallenSnags = fallen)
+    objects = list(fallenSnags = data.table::copy(emptySnagTable))
   )
-  set.seed(77)
+  sim <- spades(sim, events = "init")
+  sim$DWDTable <- data.table(
+    pixelID     = 1:50,
+    species     = "Pinus strobus",
+    DC          = initial_DCs,
+    ageInDC     = rep(0L, 50),
+    initBiomass = rep(5.0, 50)
+  )
   sim <- spades(sim)
-  expect_true(all(sim$DWDTable$DC >= 1L & sim$DWDTable$DC <= 5L))
+  final_DCs <- sim$DWDTable[order(pixelID), DC]
+  expect_true(all(final_DCs >= initial_DCs))
 })
 
 test_that("DWDDecay annual with 100% loss probability removes all DC5 records", {
@@ -124,5 +127,5 @@ test_that("DWDDecay annual with 100% loss probability removes all DC5 records", 
   sim$DWDTable <- preloaded
   set.seed(3)
   sim <- spades(sim, events = "annual")
-  expect_equal(nrow(sim$DWDTable[DC == 5L]), 0L)
+  expect_equal(nrow(sim$DWDTable), 0L)
 })
