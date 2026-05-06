@@ -1,3 +1,4 @@
+# spatialExtent field omitted: removed from SpaDES.core API in version >= 3.0
 defineModule(sim, list(
   name        = "snagDecay",
   description = "Advances standing dead White Pine trees through DC1-DC5 annually using
@@ -14,7 +15,7 @@ defineModule(sim, list(
   timeunit    = "year",
   citation    = list(),
   documentation = list(),
-  reqdPkgs    = list("data.table", "SpaDES.core (>= 2.0.3)"),
+  reqdPkgs    = list("data.table", "SpaDES.core (>= 3.0.0)"),
   parameters  = bindrows(
     defineParameter("snagTransMat", "matrix", matrix(0, 5, 5), NA, NA,
                     desc = "5x5 annual DC transition probability matrix for snags."),
@@ -39,11 +40,11 @@ doEvent.snagDecay <- function(sim, eventTime, eventType, debug = FALSE) {
   switch(
     eventType,
     init = {
-      sim <- Init(sim)
+      sim <- snagDecayInit(sim)
       sim <- scheduleEvent(sim, start(sim) + 1, "snagDecay", "annual", eventPriority = 1)
     },
     annual = {
-      sim <- Annual(sim)
+      sim <- snagDecayAnnual(sim)
       sim <- scheduleEvent(sim, time(sim) + 1, "snagDecay", "annual", eventPriority = 1)
     },
     warning(paste("Undefined event type:", eventType, "in module snagDecay"))
@@ -51,7 +52,12 @@ doEvent.snagDecay <- function(sim, eventTime, eventType, debug = FALSE) {
   return(invisible(sim))
 }
 
-Init <- function(sim) {
+snagDecayInit <- function(sim) {
+  if (all(P(sim)$snagTransMat == 0))
+    stop("snagTransMat is the zero matrix — provide a real transition matrix in params.")
+  if (length(P(sim)$snagFallProb) != 5L)
+    stop("snagFallProb must have length 5 (one probability per decay class).")
+
   sim$snagTable <- data.table::data.table(
     pixelID     = integer(),
     species     = character(),
@@ -63,7 +69,7 @@ Init <- function(sim) {
   return(invisible(sim))
 }
 
-Annual <- function(sim) {
+snagDecayAnnual <- function(sim) {
   # Absorb new mortality for this year and this species
   newDead <- sim$cohortData[year == time(sim) & species == P(sim)$species]
   if (nrow(newDead) > 0) {
