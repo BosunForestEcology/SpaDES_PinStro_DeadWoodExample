@@ -60,23 +60,19 @@ test_that("deadWoodBiomass annual computes snag biomass correctly for DC1", {
   snagTable <- data.table(
     pixelID = 1L, species = "Pinus strobus", DC = 1L, ageInDC = 0L, initBiomass = 12.0
   )
-  DWDTable <- data.table(
-    pixelID = integer(), species = character(),
-    DC = integer(), ageInDC = integer(), initBiomass = numeric()
-  )
   sim <- testInit(
     "deadWoodBiomass",
     times   = list(start = 0, end = 1),
     params  = list(deadWoodBiomass = list(DRFLookup = DRFLookup_test)),
     objects = list(
       snagTable       = snagTable,
-      DWDTable        = DWDTable,
+      DWDTable        = data.table::copy(emptySnagTable),
       studyAreaRaster = templateRaster
     )
   )
   sim <- spades(sim, events = c("init", "annual"))
   expect_equal(terra::values(sim$snagBiomass_Mg_ha)[1, 1], 12.0)
-  expect_true(is.na(terra::values(sim$DWDBiomass_Mg_ha)[1, 1]))
+  expect_true(all(is.na(terra::values(sim$DWDBiomass_Mg_ha))))
 })
 
 test_that("deadWoodBiomass annual applies DRF correctly for DC3 DWD", {
@@ -84,16 +80,12 @@ test_that("deadWoodBiomass annual applies DRF correctly for DC3 DWD", {
   DWDTable <- data.table(
     pixelID = 2L, species = "Pinus strobus", DC = 3L, ageInDC = 1L, initBiomass = 10.0
   )
-  snagTable <- data.table(
-    pixelID = integer(), species = character(),
-    DC = integer(), ageInDC = integer(), initBiomass = numeric()
-  )
   sim <- testInit(
     "deadWoodBiomass",
     times   = list(start = 0, end = 1),
     params  = list(deadWoodBiomass = list(DRFLookup = DRFLookup_test)),
     objects = list(
-      snagTable       = snagTable,
+      snagTable       = data.table::copy(emptySnagTable),
       DWDTable        = DWDTable,
       studyAreaRaster = templateRaster
     )
@@ -111,17 +103,13 @@ test_that("deadWoodBiomass annual aggregates multiple records per pixel", {
     ageInDC     = c(0L, 0L),
     initBiomass = c(5.0, 8.0)
   )
-  DWDTable <- data.table(
-    pixelID = integer(), species = character(),
-    DC = integer(), ageInDC = integer(), initBiomass = numeric()
-  )
   sim <- testInit(
     "deadWoodBiomass",
     times   = list(start = 0, end = 1),
     params  = list(deadWoodBiomass = list(DRFLookup = DRFLookup_test)),
     objects = list(
       snagTable       = snagTable,
-      DWDTable        = DWDTable,
+      DWDTable        = data.table::copy(emptySnagTable),
       studyAreaRaster = templateRaster
     )
   )
