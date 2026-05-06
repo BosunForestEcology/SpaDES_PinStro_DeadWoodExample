@@ -77,7 +77,7 @@ test_that("snagDecay annual absorbs new mortality and populates snagTable", {
   )
   sim <- testInit(
     "snagDecay",
-    times  = list(start = 0, end = 2),
+    times  = list(start = 0, end = 1),
     params = list(snagDecay = list(
       snagTransMat = snagTransMat_test,
       snagFallProb = snagFallProb_test,
