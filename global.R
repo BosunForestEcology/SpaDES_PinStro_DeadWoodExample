@@ -37,6 +37,9 @@ params  <- list(
 )
 modules <- list("snagDecay", "DWDDecay", "deadWoodBiomass")
 
+# Note: fallenSnags is not provided here; snagDecayInit() creates it at time 0
+# (before DWDDecay's first receive event at time 1), so the SpaDES contract
+# warning for fallenSnags at simInit is expected and resolves correctly at runtime.
 mySim <- simInit(
   times   = times,
   params  = params,
