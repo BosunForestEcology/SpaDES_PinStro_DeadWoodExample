@@ -67,3 +67,67 @@ test_that("snagDecay init creates empty fallenSnags", {
   expect_equal(nrow(sim$fallenSnags), 0L)
   expect_named(sim$fallenSnags, c("pixelID", "species", "DC", "ageInDC", "initBiomass"))
 })
+
+test_that("snagDecay annual absorbs new mortality and populates snagTable", {
+  cohorts <- data.table(
+    pixelID = c(1L, 2L),
+    year    = c(1L, 1L),
+    species = "Pinus strobus",
+    B       = c(10.0, 5.0)
+  )
+  sim <- testInit(
+    "snagDecay",
+    times  = list(start = 0, end = 2),
+    params = list(snagDecay = list(
+      snagTransMat = snagTransMat_test,
+      snagFallProb = snagFallProb_test,
+      species      = "Pinus strobus"
+    )),
+    objects = list(cohortData = cohorts)
+  )
+  set.seed(42)
+  sim <- spades(sim, events = c("init", "annual"))
+  expect_true(nrow(sim$snagTable) + nrow(sim$fallenSnags) == 2L)
+})
+
+test_that("snagDecay annual DC never decreases", {
+  cohorts <- data.table(
+    pixelID = 1:20,
+    year    = rep(1L, 20),
+    species = "Pinus strobus",
+    B       = rep(5.0, 20)
+  )
+  sim <- testInit(
+    "snagDecay",
+    times  = list(start = 0, end = 10),
+    params = list(snagDecay = list(
+      snagTransMat = snagTransMat_test,
+      snagFallProb = rep(0, 5),
+      species      = "Pinus strobus"
+    )),
+    objects = list(cohortData = cohorts)
+  )
+  set.seed(1)
+  sim <- spades(sim)
+  expect_true(all(sim$snagTable$DC >= 1L & sim$snagTable$DC <= 5L))
+})
+
+test_that("snagDecay annual with 100% fall probability empties snagTable each year", {
+  cohorts <- data.table(
+    pixelID = 1L, year = 1L, species = "Pinus strobus", B = 5.0
+  )
+  sim <- testInit(
+    "snagDecay",
+    times  = list(start = 0, end = 2),
+    params = list(snagDecay = list(
+      snagTransMat = snagTransMat_test,
+      snagFallProb = rep(1, 5),
+      species      = "Pinus strobus"
+    )),
+    objects = list(cohortData = cohorts)
+  )
+  set.seed(5)
+  sim <- spades(sim, events = c("init", "annual"))
+  expect_equal(nrow(sim$snagTable), 0L)
+  expect_equal(nrow(sim$fallenSnags), 1L)
+})
