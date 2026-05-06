@@ -7,15 +7,15 @@ source("R/parameters.R")
 # Minimal single-pixel cohort data for a 50-year run
 myMortalityTable <- data.table::data.table(
   pixelID = 1L,
-  year    = c(1L, 5L, 10L),
+  year    = c(1L, 5L, 10L),    # mortality events at years 1, 5, 10
   species = "Pinus strobus",
-  B       = c(15.0, 10.0, 8.0)
+  B       = c(15.0, 10.0, 8.0) # Mg ha-1
 )
 
 myRaster <- terra::rast(
   nrows = 1, ncols = 1,
   xmin = 0, xmax = 1, ymin = 0, ymax = 1,
-  crs = "EPSG:4326"
+  crs = "EPSG:4326"  # geometry-only template; values are set by deadWoodBiomass
 )
 
 times   <- list(start = 0, end = 50)
