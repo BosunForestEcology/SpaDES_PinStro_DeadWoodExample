@@ -73,14 +73,12 @@ deadWoodBiomassInit <- function(sim) {
 deadWoodBiomassAnnual <- function(sim) {
   drf <- P(sim)$DRFLookup
 
-  snagWithBiomass <- data.table::copy(sim$snagTable)
-  snagWithBiomass <- drf[pool == "snag"][snagWithBiomass, on = .(species, DC)]
+  snagWithBiomass <- drf[pool == "snag"][sim$snagTable, on = .(species, DC)]
   snagWithBiomass[, currentBiomass := initBiomass * DRF]
   snagByPixel <- snagWithBiomass[, .(value = sum(currentBiomass, na.rm = TRUE)), by = pixelID]
   sim$snagBiomass_Mg_ha <- pixelValuesToRaster(snagByPixel, sim$studyAreaRaster)
 
-  DWDwithBiomass <- data.table::copy(sim$DWDTable)
-  DWDwithBiomass <- drf[pool == "DWD"][DWDwithBiomass, on = .(species, DC)]
+  DWDwithBiomass <- drf[pool == "DWD"][sim$DWDTable, on = .(species, DC)]
   DWDwithBiomass[, currentBiomass := initBiomass * DRF]
   DWDbyPixel <- DWDwithBiomass[, .(value = sum(currentBiomass, na.rm = TRUE)), by = pixelID]
   sim$DWDBiomass_Mg_ha <- pixelValuesToRaster(DWDbyPixel, sim$studyAreaRaster)
