@@ -18,6 +18,9 @@ emptySnagTable <- data.table(
   DC = integer(), ageInDC = integer(), initBiomass = numeric()
 )
 
+# testInit is not available in SpaDES.core >= 3.x; use simInit directly.
+# This test file lives at: modules/DWDDecay/tests/testthat/
+# The project root (containing modules/) is 4 levels up.
 .projRoot <- normalizePath(file.path(getwd(), "..", "..", "..", ".."), mustWork = FALSE)
 if (!dir.exists(file.path(.projRoot, "modules"))) {
   .projRoot <- getwd()
