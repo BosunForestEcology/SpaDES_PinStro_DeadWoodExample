@@ -2,7 +2,13 @@ library(terra)
 library(data.table)
 library(testthat)
 
-source(file.path(getwd(), "modules", "deadWoodBiomass", "R", "raster-helpers.R"))
+# This test file lives at: modules/deadWoodBiomass/tests/testthat/
+# The project root (containing modules/) is 4 levels up.
+.projRoot <- normalizePath(file.path(getwd(), "..", "..", "..", ".."), mustWork = FALSE)
+if (!dir.exists(file.path(.projRoot, "modules"))) {
+  .projRoot <- getwd()
+}
+source(file.path(.projRoot, "modules", "deadWoodBiomass", "R", "raster-helpers.R"))
 
 test_that("pixelValuesToRaster assigns values to correct pixels", {
   template <- terra::rast(nrows = 3, ncols = 3,

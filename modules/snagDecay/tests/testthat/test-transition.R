@@ -1,6 +1,12 @@
 library(testthat)
 
-source(file.path(getwd(), "modules", "snagDecay", "R", "transition.R"))
+# This test file lives at: modules/snagDecay/tests/testthat/
+# The project root (containing modules/) is 4 levels up.
+.projRoot <- normalizePath(file.path(getwd(), "..", "..", "..", ".."), mustWork = FALSE)
+if (!dir.exists(file.path(.projRoot, "modules"))) {
+  .projRoot <- getwd()
+}
+source(file.path(.projRoot, "modules", "snagDecay", "R", "transition.R"))
 
 snagTransMat_test <- matrix(
   c(0.48, 0.38, 0.05, 0.00, 0.00,
