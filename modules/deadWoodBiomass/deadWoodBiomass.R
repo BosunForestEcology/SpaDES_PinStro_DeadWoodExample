@@ -73,6 +73,7 @@ deadWoodBiomassInit <- function(sim) {
 deadWoodBiomassAnnual <- function(sim) {
   drf <- P(sim)$DRFLookup
 
+  # Right join: inventory rows with no matching DRF get DRF=NA; na.rm=TRUE silently drops them
   snagWithBiomass <- drf[pool == "snag"][sim$snagTable, on = .(species, DC)]
   snagWithBiomass[, currentBiomass := initBiomass * DRF]
   snagByPixel <- snagWithBiomass[, .(value = sum(currentBiomass, na.rm = TRUE)), by = pixelID]
