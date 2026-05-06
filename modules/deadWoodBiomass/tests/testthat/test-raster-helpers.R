@@ -10,10 +10,10 @@ test_that("pixelValuesToRaster assigns values to correct pixels", {
                           crs = "EPSG:4326")
   dt <- data.table(pixelID = c(1L, 5L, 9L), value = c(10.0, 20.0, 30.0))
   r <- pixelValuesToRaster(dt, template)
-  expect_equal(terra::values(r)[1],  10.0)
-  expect_equal(terra::values(r)[5],  20.0)
-  expect_equal(terra::values(r)[9],  30.0)
-  expect_true(is.na(terra::values(r)[2]))
+  expect_equal(terra::values(r)[1, 1],  10.0)
+  expect_equal(terra::values(r)[5, 1],  20.0)
+  expect_equal(terra::values(r)[9, 1],  30.0)
+  expect_true(is.na(terra::values(r)[2, 1]))
 })
 
 test_that("pixelValuesToRaster returns NA for unspecified pixels", {
