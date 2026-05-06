@@ -47,11 +47,11 @@ doEvent.deadWoodBiomass <- function(sim, eventTime, eventType, debug = FALSE) {
   switch(
     eventType,
     init = {
-      sim <- deadWoodBiomassInit(sim)
+      sim <- Init(sim)
       sim <- scheduleEvent(sim, start(sim) + 1, "deadWoodBiomass", "annual", eventPriority = 4)
     },
     annual = {
-      sim <- deadWoodBiomassAnnual(sim)
+      sim <- Annual(sim)
       sim <- scheduleEvent(sim, time(sim) + 1, "deadWoodBiomass", "annual", eventPriority = 4)
     },
     warning(paste("Undefined event type:", eventType, "in module deadWoodBiomass"))
@@ -59,7 +59,7 @@ doEvent.deadWoodBiomass <- function(sim, eventTime, eventType, debug = FALSE) {
   return(invisible(sim))
 }
 
-deadWoodBiomassInit <- function(sim) {
+Init <- function(sim) {
   if (nrow(P(sim)$DRFLookup) == 0L)
     stop("DRFLookup is empty — provide a density reduction factor table in params.")
   # terra::values<- deep-copies before writing, so studyAreaRaster is not modified
@@ -70,7 +70,7 @@ deadWoodBiomassInit <- function(sim) {
   return(invisible(sim))
 }
 
-deadWoodBiomassAnnual <- function(sim) {
+Annual <- function(sim) {
   drf <- P(sim)$DRFLookup
 
   # Right join: inventory rows with no matching DRF get DRF=NA; na.rm=TRUE silently drops them
