@@ -26,9 +26,9 @@ if (!dir.exists(file.path(.projRoot, "modules"))) {
   .projRoot <- getwd()
 }
 
-testInit <- function(moduleName, params, objects) {
+testInit <- function(moduleName, params, objects, times = list(start = 0, end = 10)) {
   simInit(
-    times   = list(start = 0, end = 10),
+    times   = times,
     modules = list(moduleName),
     params  = params,
     objects = objects,
@@ -65,4 +65,5 @@ test_that("snagDecay init creates empty fallenSnags", {
   sim <- spades(sim, events = "init")
   expect_s3_class(sim$fallenSnags, "data.table")
   expect_equal(nrow(sim$fallenSnags), 0L)
+  expect_named(sim$fallenSnags, c("pixelID", "species", "DC", "ageInDC", "initBiomass"))
 })
