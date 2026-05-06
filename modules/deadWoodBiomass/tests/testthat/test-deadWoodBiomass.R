@@ -54,3 +54,77 @@ test_that("deadWoodBiomass init creates snagBiomass and DWDBiomass rasters", {
   expect_true(all(is.na(terra::values(sim$snagBiomass_Mg_ha))))
   expect_true(all(is.na(terra::values(sim$DWDBiomass_Mg_ha))))
 })
+
+test_that("deadWoodBiomass annual computes snag biomass correctly for DC1", {
+  # DC1 snag: DRF = 1.0, so currentBiomass == initBiomass
+  snagTable <- data.table(
+    pixelID = 1L, species = "Pinus strobus", DC = 1L, ageInDC = 0L, initBiomass = 12.0
+  )
+  DWDTable <- data.table(
+    pixelID = integer(), species = character(),
+    DC = integer(), ageInDC = integer(), initBiomass = numeric()
+  )
+  sim <- testInit(
+    "deadWoodBiomass",
+    times   = list(start = 0, end = 1),
+    params  = list(deadWoodBiomass = list(DRFLookup = DRFLookup_test)),
+    objects = list(
+      snagTable       = snagTable,
+      DWDTable        = DWDTable,
+      studyAreaRaster = templateRaster
+    )
+  )
+  sim <- spades(sim, events = c("init", "annual"))
+  expect_equal(terra::values(sim$snagBiomass_Mg_ha)[1, 1], 12.0)
+  expect_true(is.na(terra::values(sim$DWDBiomass_Mg_ha)[1, 1]))
+})
+
+test_that("deadWoodBiomass annual applies DRF correctly for DC3 DWD", {
+  # DC3 DWD DRF = 0.614; initBiomass = 10 -> currentBiomass = 6.14
+  DWDTable <- data.table(
+    pixelID = 2L, species = "Pinus strobus", DC = 3L, ageInDC = 1L, initBiomass = 10.0
+  )
+  snagTable <- data.table(
+    pixelID = integer(), species = character(),
+    DC = integer(), ageInDC = integer(), initBiomass = numeric()
+  )
+  sim <- testInit(
+    "deadWoodBiomass",
+    times   = list(start = 0, end = 1),
+    params  = list(deadWoodBiomass = list(DRFLookup = DRFLookup_test)),
+    objects = list(
+      snagTable       = snagTable,
+      DWDTable        = DWDTable,
+      studyAreaRaster = templateRaster
+    )
+  )
+  sim <- spades(sim, events = c("init", "annual"))
+  expect_equal(terra::values(sim$DWDBiomass_Mg_ha)[2, 1], 10.0 * 0.614, tolerance = 1e-6)
+})
+
+test_that("deadWoodBiomass annual aggregates multiple records per pixel", {
+  # Two DC2 snags in pixel 3: 5 + 8 = 13 Mg/ha, each x DRF 0.841 = 10.933
+  snagTable <- data.table(
+    pixelID     = c(3L, 3L),
+    species     = "Pinus strobus",
+    DC          = c(2L, 2L),
+    ageInDC     = c(0L, 0L),
+    initBiomass = c(5.0, 8.0)
+  )
+  DWDTable <- data.table(
+    pixelID = integer(), species = character(),
+    DC = integer(), ageInDC = integer(), initBiomass = numeric()
+  )
+  sim <- testInit(
+    "deadWoodBiomass",
+    times   = list(start = 0, end = 1),
+    params  = list(deadWoodBiomass = list(DRFLookup = DRFLookup_test)),
+    objects = list(
+      snagTable       = snagTable,
+      DWDTable        = DWDTable,
+      studyAreaRaster = templateRaster
+    )
+  )
+  sim <- spades(sim, events = c("init", "annual"))
+  expect_equal(terra::values(sim$snagBiomass_Mg_ha)[3, 1], (5.0 + 8.0) * 0.841, tolerance = 1e-6)
+})
