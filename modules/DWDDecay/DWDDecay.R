@@ -38,16 +38,16 @@ doEvent.DWDDecay <- function(sim, eventTime, eventType, debug = FALSE) {
   switch(
     eventType,
     init = {
-      sim <- DWDDecayInit(sim)
+      sim <- Init(sim)
       sim <- scheduleEvent(sim, start(sim) + 1, "DWDDecay", "receive", eventPriority = 2)
       sim <- scheduleEvent(sim, start(sim) + 1, "DWDDecay", "annual",  eventPriority = 3)
     },
     receive = {
-      sim <- DWDDecayReceive(sim)
+      sim <- Receive(sim)
       sim <- scheduleEvent(sim, time(sim) + 1, "DWDDecay", "receive", eventPriority = 2)
     },
     annual = {
-      sim <- DWDDecayAnnual(sim)
+      sim <- Annual(sim)
       sim <- scheduleEvent(sim, time(sim) + 1, "DWDDecay", "annual",  eventPriority = 3)
     },
     warning(paste("Undefined event type:", eventType, "in module DWDDecay"))
@@ -55,7 +55,7 @@ doEvent.DWDDecay <- function(sim, eventTime, eventType, debug = FALSE) {
   return(invisible(sim))
 }
 
-DWDDecayInit <- function(sim) {
+Init <- function(sim) {
   if (all(P(sim)$DWDTransMat == 0))
     stop("DWDTransMat is the zero matrix — provide a real transition matrix in params.")
   if (length(P(sim)$DWD_lossProb) != 5L)
@@ -73,7 +73,7 @@ DWDDecayInit <- function(sim) {
   return(invisible(sim))
 }
 
-DWDDecayReceive <- function(sim) {
+Receive <- function(sim) {
   if (is.null(sim$fallenSnags) || nrow(sim$fallenSnags) == 0L) {
     return(invisible(sim))
   }
@@ -84,7 +84,7 @@ DWDDecayReceive <- function(sim) {
   return(invisible(sim))
 }
 
-DWDDecayAnnual <- function(sim) {
+Annual <- function(sim) {
   if (nrow(sim$DWDTable) == 0L) return(invisible(sim))
 
   oldDC <- sim$DWDTable$DC

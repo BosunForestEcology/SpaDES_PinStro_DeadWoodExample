@@ -40,11 +40,11 @@ doEvent.snagDecay <- function(sim, eventTime, eventType, debug = FALSE) {
   switch(
     eventType,
     init = {
-      sim <- snagDecayInit(sim)
+      sim <- Init(sim)
       sim <- scheduleEvent(sim, start(sim) + 1, "snagDecay", "annual", eventPriority = 1)
     },
     annual = {
-      sim <- snagDecayAnnual(sim)
+      sim <- Annual(sim)
       sim <- scheduleEvent(sim, time(sim) + 1, "snagDecay", "annual", eventPriority = 1)
     },
     warning(paste("Undefined event type:", eventType, "in module snagDecay"))
@@ -52,7 +52,7 @@ doEvent.snagDecay <- function(sim, eventTime, eventType, debug = FALSE) {
   return(invisible(sim))
 }
 
-snagDecayInit <- function(sim) {
+Init <- function(sim) {
   if (all(P(sim)$snagTransMat == 0))
     stop("snagTransMat is the zero matrix — provide a real transition matrix in params.")
   if (length(P(sim)$snagFallProb) != 5L)
@@ -69,7 +69,7 @@ snagDecayInit <- function(sim) {
   return(invisible(sim))
 }
 
-snagDecayAnnual <- function(sim) {
+Annual <- function(sim) {
   # Absorb new mortality for this year and this species
   newDead <- sim$cohortData[year == time(sim) & species == P(sim)$species]
   if (nrow(newDead) > 0) {

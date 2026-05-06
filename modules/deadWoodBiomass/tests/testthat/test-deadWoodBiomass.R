@@ -71,7 +71,7 @@ test_that("deadWoodBiomass annual computes snag biomass correctly for DC1", {
     )
   )
   sim <- spades(sim, events = c("init", "annual"))
-  expect_equal(terra::values(sim$snagBiomass_Mg_ha)[1, 1], 12.0)
+  expect_equal(unname(terra::values(sim$snagBiomass_Mg_ha)[1, 1]), 12.0)
   expect_true(all(is.na(terra::values(sim$DWDBiomass_Mg_ha))))
 })
 
@@ -91,7 +91,7 @@ test_that("deadWoodBiomass annual applies DRF correctly for DC3 DWD", {
     )
   )
   sim <- spades(sim, events = c("init", "annual"))
-  expect_equal(terra::values(sim$DWDBiomass_Mg_ha)[2, 1], 10.0 * 0.614, tolerance = 1e-6)
+  expect_equal(unname(terra::values(sim$DWDBiomass_Mg_ha)[2, 1]), 10.0 * 0.614, tolerance = 1e-6)
 })
 
 test_that("deadWoodBiomass annual aggregates multiple records per pixel", {
@@ -114,5 +114,5 @@ test_that("deadWoodBiomass annual aggregates multiple records per pixel", {
     )
   )
   sim <- spades(sim, events = c("init", "annual"))
-  expect_equal(terra::values(sim$snagBiomass_Mg_ha)[3, 1], (5.0 + 8.0) * 0.841, tolerance = 1e-6)
+  expect_equal(unname(terra::values(sim$snagBiomass_Mg_ha)[3, 1]), (5.0 + 8.0) * 0.841, tolerance = 1e-6)
 })

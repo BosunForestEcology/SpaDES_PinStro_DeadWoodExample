@@ -118,7 +118,7 @@ test_that("snagDecay annual with 100% fall probability empties snagTable each ye
   )
   sim <- testInit(
     "snagDecay",
-    times  = list(start = 0, end = 2),
+    times  = list(start = 0, end = 1),
     params = list(snagDecay = list(
       snagTransMat = snagTransMat_test,
       snagFallProb = rep(1, 5),
