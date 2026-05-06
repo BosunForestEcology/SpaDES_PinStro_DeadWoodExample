@@ -60,6 +60,9 @@ doEvent.deadWoodBiomass <- function(sim, eventTime, eventType, debug = FALSE) {
 }
 
 deadWoodBiomassInit <- function(sim) {
+  if (nrow(P(sim)$DRFLookup) == 0L)
+    stop("DRFLookup is empty — provide a density reduction factor table in params.")
+  # terra::values<- deep-copies before writing, so studyAreaRaster is not modified
   sim$snagBiomass_Mg_ha <- sim$studyAreaRaster
   terra::values(sim$snagBiomass_Mg_ha) <- NA_real_
   sim$DWDBiomass_Mg_ha  <- sim$studyAreaRaster
