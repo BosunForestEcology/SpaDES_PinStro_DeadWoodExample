@@ -1,52 +1,55 @@
 repos <- unique(c("predictiveecology.r-universe.dev", getOption("repos")))
 install.packages("SpaDES.project", repos = repos)
+Require::Require(c("SpaDES.core", "data.table", "terra", "ggplot2"))
 
 projectPath <- getwd()
+modulePath  <- file.path(projectPath, "modules")
+
+for (d in c(modulePath, file.path(projectPath, "inputs"),
+            file.path(projectPath, "outputs"), file.path(projectPath, "cache"))) {
+  if (!dir.exists(d)) dir.create(d, recursive = TRUE)
+}
+
+# Download modules from BosunForestEcology GitHub as zip archives
+for (mod in c("DeadWood_snagDecay", "DeadWood_DWDDecay", "DeadWood_Biomass")) {
+  modPath <- file.path(modulePath, mod)
+  if (!dir.exists(modPath)) {
+    tmp <- tempfile(fileext = ".zip")
+    download.file(
+      url      = paste0("https://github.com/BosunForestEcology/", mod, "/archive/refs/heads/main.zip"),
+      destfile = tmp,
+      mode     = "wb",
+      quiet    = TRUE
+    )
+    unzip(tmp, exdir = modulePath)
+    file.rename(file.path(modulePath, paste0(mod, "-main")), modPath)
+    unlink(tmp)
+  }
+}
 
 source("R/example-data.R")  # myMortalityTable, myRaster
 
 times <- list(start = 0, end = 50)
 
-# Clone modules from BosunForestEcology GitHub if not already present
-modulePath <- file.path(projectPath, "modules")
-if (!dir.exists(modulePath)) dir.create(modulePath, recursive = TRUE)
-for (mod in c("DeadWood_snagDecay", "DeadWood_DWDDecay", "DeadWood_Biomass")) {
-  if (!dir.exists(file.path(modulePath, mod)))
-    system2("git", c("clone",
-                     paste0("https://github.com/BosunForestEcology/", mod, ".git"),
-                     file.path(modulePath, mod)))
-}
-
 # Note: fallenSnags is not provided here; DeadWood_snagDecay Init() creates it
 # at time 0 (before DeadWood_DWDDecay's first receive event at time 5), so the
 # SpaDES contract warning for fallenSnags at simInit is expected and resolves
 # correctly at runtime.
-out <- SpaDES.project::setupProject(
-  useGit  = FALSE,
+mySim <- SpaDES.core::simInit(
+  times   = times,
+  params  = list(DeadWood_Biomass = list(.plotInitialTime = 5)),
+  modules = list("DeadWood_snagDecay", "DeadWood_DWDDecay", "DeadWood_Biomass"),
+  objects = list(cohortData = myMortalityTable, studyAreaRaster = myRaster),
   paths   = list(
-    projectPath = projectPath,
-    modulePath  = modulePath,
-    inputPath   = file.path(projectPath, "inputs"),
-    outputPath  = file.path(projectPath, "outputs"),
-    cachePath   = file.path(projectPath, "cache")
-  ),
-  options = options(
-    repos                        = c(repos = repos),
-    reproducible.destinationPath = "inputs",
-    reproducible.useMemoise      = TRUE,
-    spades.moduleCodeChecks      = FALSE
-  ),
-  modules = c("DeadWood_snagDecay", "DeadWood_DWDDecay", "DeadWood_Biomass"),
-  times  = times,
-  params = list(
-    DeadWood_Biomass = list(.plotInitialTime = 5)
-  ),
-  cohortData      = myMortalityTable,
-  studyAreaRaster = myRaster
+    modulePath = modulePath,
+    inputPath  = file.path(projectPath, "inputs"),
+    outputPath = file.path(projectPath, "outputs"),
+    cachePath  = file.path(projectPath, "cache")
+  )
 )
 
 set.seed(42)
-mySim <- SpaDES.core::simInitAndSpades2(out)
+mySim <- SpaDES.core::spades(mySim)
 
 # Inspect outputs
 cat("Final snag inventory rows:   ", nrow(mySim$snagTable), "\n")
