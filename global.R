@@ -2,7 +2,6 @@ library(SpaDES.project)  # bootstrap exception — only library() call permitted
 
 Require::Require(c("SpaDES.core", "SpaDES.install", "data.table", "terra", "ggplot2"))
 
-source("R/parameters.R")
 source("R/example-data.R")   # myMortalityTable, myRaster
 
 for (d in c("inputs", "outputs", "cache")) {
@@ -18,26 +17,14 @@ SpaDES.install::installModules(
 
 times   <- list(start = 0, end = 50)
 params  <- list(
-  DeadWood_snagDecay = list(
-    snagTransMat = snagTransMat,
-    snagFallProb = snagFallProb,
-    species      = "Pinus strobus"
-  ),
-  DeadWood_DWDDecay = list(
-    DWDTransMat     = DWDTransMat,
-    snagToDWD_DCmap = snagToDWD_DCmap,
-    DWD_lossProb    = DWD_lossProb
-  ),
   DeadWood_Biomass = list(
-    DRFLookup        = DRFLookup,
-    .plotInitialTime = 5,
-    .plotInterval    = 5
+    .plotInitialTime = 5
   )
 )
 modules <- list("DeadWood_snagDecay", "DeadWood_DWDDecay", "DeadWood_Biomass")
 
 # Note: fallenSnags is not provided here; DeadWood_snagDecay Init() creates it
-# at time 0 (before DeadWood_DWDDecay's first receive event at time 1), so the
+# at time 0 (before DeadWood_DWDDecay's first receive event at time 5), so the
 # SpaDES contract warning for fallenSnags at simInit is expected and resolves
 # correctly at runtime.
 mySim <- simInit(
