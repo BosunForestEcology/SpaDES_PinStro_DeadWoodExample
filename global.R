@@ -13,17 +13,26 @@ for (d in c(modulePath, file.path(projectPath, "inputs"),
 # Download modules from BosunForestEcology GitHub as zip archives
 for (mod in c("DeadWood_snagDecay", "DeadWood_DWDDecay", "DeadWood_Biomass")) {
   modPath <- file.path(modulePath, mod)
-  if (!dir.exists(modPath)) {
+  modFile <- file.path(modPath, paste0(mod, ".R"))
+  if (!file.exists(modFile)) {
+    message("Downloading ", mod, " ...")
     tmp <- tempfile(fileext = ".zip")
-    download.file(
+    ok <- download.file(
       url      = paste0("https://github.com/BosunForestEcology/", mod, "/archive/refs/heads/main.zip"),
       destfile = tmp,
       mode     = "wb",
-      quiet    = TRUE
+      method   = "wininet"
     )
+    if (ok != 0L) stop("download.file failed for ", mod, " (exit code ", ok, ")")
     unzip(tmp, exdir = modulePath)
-    file.rename(file.path(modulePath, paste0(mod, "-main")), modPath)
     unlink(tmp)
+    extractedDir <- file.path(modulePath, paste0(mod, "-main"))
+    if (!dir.exists(extractedDir))
+      stop("unzip produced no output — expected: ", extractedDir)
+    if (dir.exists(modPath)) unlink(modPath, recursive = TRUE)
+    if (!file.rename(extractedDir, modPath))
+      stop("file.rename failed: ", extractedDir, " -> ", modPath)
+    message("Done: ", mod)
   }
 }
 
