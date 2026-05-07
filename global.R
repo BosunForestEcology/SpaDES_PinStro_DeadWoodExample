@@ -1,4 +1,4 @@
-repos <- unique(c("bosunforestecology.r-universe.dev", getOption("repos")))
+repos <- unique(c("predictiveecology.r-universe.dev", getOption("repos")))
 install.packages("SpaDES.project", repos = repos)
 
 projectPath <- getwd()
@@ -6,6 +6,16 @@ projectPath <- getwd()
 source("R/example-data.R")  # myMortalityTable, myRaster
 
 times <- list(start = 0, end = 50)
+
+# Clone modules from BosunForestEcology GitHub if not already present
+modulePath <- file.path(projectPath, "modules")
+if (!dir.exists(modulePath)) dir.create(modulePath, recursive = TRUE)
+for (mod in c("DeadWood_snagDecay", "DeadWood_DWDDecay", "DeadWood_Biomass")) {
+  if (!dir.exists(file.path(modulePath, mod)))
+    system2("git", c("clone",
+                     paste0("https://github.com/BosunForestEcology/", mod, ".git"),
+                     file.path(modulePath, mod)))
+}
 
 # Note: fallenSnags is not provided here; DeadWood_snagDecay Init() creates it
 # at time 0 (before DeadWood_DWDDecay's first receive event at time 5), so the
@@ -15,7 +25,7 @@ out <- SpaDES.project::setupProject(
   useGit  = FALSE,
   paths   = list(
     projectPath = projectPath,
-    modulePath  = file.path(projectPath, "modules"),
+    modulePath  = modulePath,
     inputPath   = file.path(projectPath, "inputs"),
     outputPath  = file.path(projectPath, "outputs"),
     cachePath   = file.path(projectPath, "cache")
@@ -26,11 +36,7 @@ out <- SpaDES.project::setupProject(
     reproducible.useMemoise      = TRUE,
     spades.moduleCodeChecks      = FALSE
   ),
-  modules = c(
-    "BosunForestEcology/DeadWood_snagDecay@main",
-    "BosunForestEcology/DeadWood_DWDDecay@main",
-    "BosunForestEcology/DeadWood_Biomass@main"
-  ),
+  modules = c("DeadWood_snagDecay", "DeadWood_DWDDecay", "DeadWood_Biomass"),
   times  = times,
   params = list(
     DeadWood_Biomass = list(.plotInitialTime = 5)
