@@ -29,7 +29,18 @@ myMortalityTable <- data.table::data.table(
     4L, 22L,        # pixel 8
    35L              # pixel 9: late entry
   ),
-  species = "Pinus strobus",
+  species     = "Pinus strobus",
+  diameter_cm = c(
+    18.2, 14.5,  9.8,
+    22.1, 16.3,
+    20.4, 11.7,
+    25.0,
+    13.6, 17.8,  8.9,
+    24.3, 15.1,
+    19.5,
+    16.2, 10.4,
+    12.8
+  ),
   B = c(
     20.0, 12.0,  8.0,
     15.0, 10.0,
