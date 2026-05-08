@@ -41,7 +41,7 @@ myMortalityTable <- data.table::data.table(
     16.2, 10.4,
     12.8
   ),
-  B = c(
+  biomass = c(
     20.0, 12.0,  8.0,
     15.0, 10.0,
     18.0,  9.0,
