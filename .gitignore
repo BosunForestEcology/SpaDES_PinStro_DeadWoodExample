@@ -8,6 +8,11 @@ inputs/
 modules/
 *.Rout
 docs/**/*.html
+docs/superpowers/
 *.html
 .Rprofile
+CLAUDE.md
+.claude/
+SpaDES_DeadWoodDecay_Workflow.md
+spades_github_structure.Rmd
 
