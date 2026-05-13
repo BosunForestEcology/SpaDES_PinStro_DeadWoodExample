@@ -1,6 +1,6 @@
 # DeadWood_Example
 
-Example repository showcasing how to use these modules. Built
+Controller repository for a *Pinus strobus* and *Pinus resinosa* snag and dead wood decay workflow built
 with [SpaDES](https://spades.predictiveecology.org/).
 
 Clone this repository and then run `global.R`. 
@@ -30,13 +30,13 @@ source("global.R")
 
 1. Install any missing R packages via `Require`.
 2. Download the three modules from GitHub via `SpaDES.install::installModules()`.
-3. Run a 50-year example simulation on a 3×3 pixel *Pinus strobus* landscape.
+3. Run a 100-year example simulation on a 3×3 pixel *Pinus strobus* and *Pinus resinosa* landscape.
 4. Print a biomass summary and display spatial and time-series plots.
 
 ## Repository layout
 
 ```
-SpaDES_PinStro_DeadWoodExample/
+DeadWood_Example/
 ├── global.R            # entry point — run this
 ├── R/
 │   ├── parameters.R    # transition matrices, fall/loss probabilities, DRF lookup
