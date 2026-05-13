@@ -1,7 +1,12 @@
 # DeadWood_Example
 
-Controller repository for a *Pinus strobus* and *Pinus resinosa* snag and dead wood decay workflow built
+Example repository for a *Pinus strobus* and *Pinus resinosa* snag and dead wood decay workflow built
 with [SpaDES](https://spades.predictiveecology.org/).
+
+These modules are built on top of the work from Vanderwel, M.C., Malcolm, J.R., Smith, S.M., and Islam, N. (2006). An
+integrated model for snag and downed woody debris decay class
+transition. *Forest Ecology and Management*, 234(1–3), 48–59.
+<https://doi.org/10.1016/j.foreco.2006.06.020>
 
 Clone this repository and then run `global.R`. 
 
