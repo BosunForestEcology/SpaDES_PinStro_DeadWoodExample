@@ -1,6 +1,6 @@
 # DeadWood_Example
 
-Example repository showcasing how to use these modules built
+Example repository showcasing how to use these modules. Built
 with [SpaDES](https://spades.predictiveecology.org/).
 
 ## Modules
