@@ -6,6 +6,7 @@ with [SpaDES](https://spades.predictiveecology.org/).
 These modules are built on top of the work from Vanderwel et al., (2006). *An
 integrated model for snag and downed woody debris decay class
 transition*.
+
 Clone this repository and then run `global.R`. 
 
 ## Modules
