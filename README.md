@@ -1,6 +1,6 @@
-# SpaDES_PinStro_DeadWoodExample
+# DeadWood_Example
 
-Controller repository for a *Pinus strobus* dead wood decay workflow built
+Example4 repository showcasing how to use these modules built
 with [SpaDES](https://spades.predictiveecology.org/).
 
 ## Modules
