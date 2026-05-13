@@ -3,6 +3,8 @@
 Example repository showcasing how to use these modules. Built
 with [SpaDES](https://spades.predictiveecology.org/).
 
+Clone this repository and then run `global.R`. 
+
 ## Modules
 
 Three modules are downloaded from the
