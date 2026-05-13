@@ -5,7 +5,7 @@ projectPath <- getwd()
 
 source("R/example-data.R")  # myMortalityTable, myRaster
 
-times <- list(start = 0, end = 100)
+times <- list(start = 0, end = 150)
 
 # Note: fallenSnags is not provided here; DeadWood_snagDecay Init() creates it
 # at time 0 (before DeadWood_DWDDecay's first receive event at time 5), so the
