@@ -1,7 +1,9 @@
 # DeadWood_Example
 
-Controller repository for a *Pinus strobus* and *Pinus resinosa* dead wood decay workflow built
+Controller repository for a *Pinus strobus* and *Pinus resinosa* snag and dead wood decay workflow built
 with [SpaDES](https://spades.predictiveecology.org/).
+
+Clone this repository and then run `global.R`. 
 
 ## Modules
 
