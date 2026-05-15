@@ -3,9 +3,9 @@ install.packages("SpaDES.project", repos = repos)
 
 projectPath <- getwd()
 
-source("R/example-data.R")  # myMortalityTable, myRaster
+source("R/example-data.R")  # myLiveCohortData, myRaster
 
-times <- list(start = 0, end = 150)
+times <- list(start = 0, end = 200)
 
 # Note: fallenSnags is not provided here; DeadWood_snagDecay Init() creates it
 # at time 0 (before DeadWood_DWDDecay's first receive event at time 5), so the
@@ -28,16 +28,19 @@ out <- SpaDES.project::setupProject(
     spades.moduleCodeChecks      = FALSE
   ),
   modules = c(
+    "BosunForestEcology/DeadWood_Mortality@main",
     "BosunForestEcology/DeadWood_snagDecay@dev",
     "BosunForestEcology/DeadWood_DWDDecay@main",
     "BosunForestEcology/DeadWood_Biomass@dev"
   ),
   times  = times,
   params = list(
+    DeadWood_Mortality = list(baseMortality = 0.001),
     DeadWood_snagDecay = list(species = c("Pinus strobus", "Pinus resinosa")),
     DeadWood_Biomass   = list(.plotInitialTime = 5)
   ),
-  cohortData      = myMortalityTable,
+  liveCohortData  = myLiveCohortData,
+  initialSnagTable = myInitialSnagData,
   studyAreaRaster = myRaster
 )
 
@@ -52,7 +55,7 @@ cat("Final DWD biomass  (pixel 1):", terra::values(mySim$DWDBiomass_Mg_ha)[1, 1]
 
 # ---- Visualize biomass history ------------------------------------------
 
-# 1. Spatial snapshots — per species, 3x3 grid at each 5-year step
+# 1. Spatial snapshots — per species, grid at each 5-year step
 for (sp in names(mySim$snagHistoryBySpecies)) {
   snap_years <- sub("yr", "Year ", names(mySim$snagHistoryBySpecies[[sp]]))
   snag_range <- range(terra::values(mySim$snagHistoryBySpecies[[sp]]), na.rm = TRUE)
@@ -92,7 +95,7 @@ print(
     ggplot2::scale_colour_manual(values = c(DWD = "#2c8c4f", Snag = "#c0392b")) +
     ggplot2::facet_wrap(~ species) +
     ggplot2::labs(
-      title  = "Dead wood biomass over time (9 pixels)",
+      title  = "Dead wood biomass over time (200 pixels)",
       x      = "Year",
       y      = "Total biomass (Mg/ha, summed across pixels)",
       colour = "Pool"

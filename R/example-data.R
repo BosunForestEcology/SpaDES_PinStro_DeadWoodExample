@@ -1,152 +1,102 @@
 # R/example-data.R
-# Generates a 6x3 (18-pixel) study area with staggered mortality events
-# for a 100-year Pinus strobus + Pinus resinosa dead wood decay run.
-# Pixels 1-9 occupy the top half of the grid (same positions as the original
-# 3x3 layout); pixels 10-18 are the new bottom half.
-# All mortality events occur at year <= 30.
-# Source this file from global.R before calling simInit().
+# Generates a 20×10 (200-pixel) live forest cohort for a 200-year dead wood decay run.
+# Both species may occupy the same pixel. Age-class presence follows a spatial gradient:
+# young cohorts are more common in upper rows (recent disturbance origin) and old cohorts
+# are more common in lower rows (established forest). Pixel IDs run left-to-right,
+# top-to-bottom (terra default), matching the 20-column raster below.
 
-# ---- Cohort data --------------------------------------------------------
-# Pixels 1-6: Pinus strobus; Pixels 4-9: Pinus resinosa (pixels 4-6 have both).
-# Pixels 10-18: mixed species, staggered years, varied diameters and biomass.
-myMortalityTable <- data.table::data.table(
-  pixelID = c(
-    # Pinus strobus — original pixels
-    1L, 1L, 1L,
-    2L, 2L,
-    3L, 3L,
-    4L,
-    5L, 5L,
-    6L, 6L,
-    # Pinus strobus — new pixels
-    10L,
-    11L, 11L,
-    13L,
-    14L,
-    16L,
-    17L,
-    18L,
-    # Pinus resinosa — original pixels
-    4L,
-    5L,
-    6L, 6L,
-    7L, 7L,
-    8L, 8L,
-    9L,
-    # Pinus resinosa — new pixels
-    10L,
-    12L, 12L,
-    14L,
-    15L, 15L,
-    16L,
-    17L
-  ),
-  year = c(
-    # Pinus strobus — original pixels
-    1L,  8L, 20L,
-    3L, 15L,
-    5L, 25L,
-    2L,
-    1L, 30L,
-    7L, 18L,
-    # Pinus strobus — new pixels
-    5L,
-    12L, 28L,
-    9L,
-    2L,
-    16L,
-    23L,
-    11L,
-    # Pinus resinosa — original pixels
-    10L,
-    12L,
-     4L, 22L,
-     6L, 28L,
-     3L, 28L,
-    15L,
-    # Pinus resinosa — new pixels
-    18L,
-     4L, 22L,
-    20L,
-     7L, 30L,
-     6L,
-    14L
-  ),
-  species = c(
-    rep("Pinus strobus",  20L),
-    rep("Pinus resinosa", 17L)
-  ),
-  diameter_cm = c(
-    # Pinus strobus — original pixels
-    18.2, 14.5,  9.8,
-    22.1, 16.3,
-    20.4, 11.7,
-    25.0,
-    13.6, 17.8,
-    24.3, 15.1,
-    # Pinus strobus — new pixels
-    19.0,
-    16.5, 10.5,
-    21.0,
-    24.5,
-    18.6,
-    13.8,
-    20.5,
-    # Pinus resinosa — original pixels
-    21.5,
-    19.2,
-    23.0, 12.4,
-    17.8, 10.9,
-    20.1, 14.6,
-    16.3,
-    # Pinus resinosa — new pixels
-    22.4,
-    23.8, 14.2,
-    15.6,
-    20.0, 11.8,
-    21.3,
-    17.0
-  ),
-  biomass = c(
-    # Pinus strobus — original pixels
-    20.0, 12.0,  8.0,
-    15.0, 10.0,
-    18.0,  9.0,
-    25.0,
-    10.0, 17.0,
-    22.0, 11.0,
-    # Pinus strobus — new pixels
-    16.0,
-    13.0,  8.0,
-    18.0,
-    23.0,
-    14.0,
-    11.0,
-    19.0,
-    # Pinus resinosa — original pixels
-    18.0,
-    14.0,
-    20.0,  8.0,
-    16.0,  7.0,
-    19.0, 11.0,
-    13.0,
-    # Pinus resinosa — new pixels
-    15.0,
-    20.0, 10.0,
-    12.0,
-    17.0,  7.0,
-    18.0,
-    13.0
-  )
+set.seed(42)
+
+n_pixels <- 200L
+species  <- c("Pinus strobus", "Pinus resinosa")
+
+# Row index for each pixel (row 1 = top, row 10 = bottom)
+pixel_row <- ((seq_len(n_pixels) - 1L) %/% 20L) + 1L
+
+rows <- lapply(seq_len(n_pixels), function(px) {
+  row_idx <- pixel_row[px]
+
+  # Age-class presence probabilities shift with row
+  p_young <- 0.70 - 0.04 * row_idx  # more young trees near disturbance origin (top)
+  p_mid   <- 0.50
+  p_old   <- 0.20 + 0.05 * row_idx  # more old trees in established forest (bottom)
+
+  dt_list <- list()
+  for (sp in species) {
+    if (stats::runif(1L) < p_young) {
+      dt_list[[length(dt_list) + 1L]] <- data.table::data.table(
+        pixelID     = px,
+        species     = sp,
+        biomass     = round(stats::runif(1L, 8,  15), 1),
+        diameter_cm = round(stats::runif(1L, 10, 18), 1)
+      )
+    }
+    if (stats::runif(1L) < p_mid) {
+      dt_list[[length(dt_list) + 1L]] <- data.table::data.table(
+        pixelID     = px,
+        species     = sp,
+        biomass     = round(stats::runif(1L, 18, 28), 1),
+        diameter_cm = round(stats::runif(1L, 20, 28), 1)
+      )
+    }
+    if (stats::runif(1L) < p_old) {
+      dt_list[[length(dt_list) + 1L]] <- data.table::data.table(
+        pixelID     = px,
+        species     = sp,
+        biomass     = round(stats::runif(1L, 30, 45), 1),
+        diameter_cm = round(stats::runif(1L, 30, 40), 1)
+      )
+    }
+  }
+  if (length(dt_list) == 0L) return(NULL)
+  data.table::rbindlist(dt_list)
+})
+
+myLiveCohortData <- data.table::rbindlist(Filter(Negate(is.null), rows))
+data.table::setorder(myLiveCohortData, pixelID, species)
+
+# ---- Pre-existing snag inventory ----------------------------------------
+# ~50 rows of standing dead trees already present at simulation start.
+# DC1-DC5 are all represented; the proportion of higher DCs increases toward
+# the lower rows (older, more established forest).
+snag_pixels <- c(
+   5L,  8L, 12L, 15L, 18L, 22L, 25L, 30L, 33L, 37L,   # row 1-2 (young)
+  42L, 48L, 55L, 60L, 65L, 70L, 75L, 82L, 88L, 95L,   # row 3-5 (mixed)
+  101L, 108L, 115L, 122L, 130L, 138L, 145L, 153L,       # row 6-8 (older)
+  161L, 168L, 175L, 182L, 188L, 195L, 198L              # row 9-10 (established)
 )
+snag_species <- rep(c("Pinus strobus", "Pinus resinosa"),
+                    length.out = length(snag_pixels))
+
+row_of_snag <- ((snag_pixels - 1L) %/% 20L) + 1L
+
+dc_sample <- vapply(row_of_snag, function(r) {
+  p_dc <- c(0.30, 0.25, 0.20, 0.15, 0.10) +
+          c(-0.04, -0.02, 0.01, 0.03, 0.02) * (r - 1L)
+  p_dc <- pmax(p_dc, 0.01)
+  p_dc <- p_dc / sum(p_dc)
+  sample(1:5, 1L, prob = p_dc)
+}, integer(1L))
+
+myInitialSnagData <- data.table::data.table(
+  pixelID     = snag_pixels,
+  species     = snag_species,
+  DC          = as.integer(dc_sample),
+  ageInDC     = as.integer(round(stats::runif(length(snag_pixels), 0, 20))),
+  initBiomass = round(stats::runif(length(snag_pixels), 18, 45), 1),
+  diameter_cm = round(stats::runif(length(snag_pixels), 20, 40), 1)
+)
+data.table::setorder(myInitialSnagData, pixelID, species)
 
 # ---- Study area raster --------------------------------------------------
-# 6x3 grid, 100 m resolution, arbitrary location in EPSG:32610 (UTM 10N).
-# Pixels 1-9 (top half) match the original 3x3 layout.
+# 20 cols × 10 rows, 10 m resolution — 200 pixels total.
 myRaster <- terra::rast(
-  nrows = 6, ncols = 3,
-  xmin = 0, xmax = 300,
-  ymin = 0, ymax = 600,
-  crs = "EPSG:32610",
-  resolution = 100
+  nrows      = 10,
+  ncols      = 20,
+  xmin       = 0,
+  xmax       = 200,
+  ymin       = 0,
+  ymax       = 100,
+  crs        = "EPSG:32610",
+  resolution = 10
 )
