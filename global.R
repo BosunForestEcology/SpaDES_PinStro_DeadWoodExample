@@ -29,9 +29,9 @@ out <- SpaDES.project::setupProject(
   ),
   modules = c(
     "BosunForestEcology/DeadWood_Mortality@main",
-    "BosunForestEcology/DeadWood_snagDecay@dev",
+    "BosunForestEcology/DeadWood_snagDecay@main",
     "BosunForestEcology/DeadWood_DWDDecay@main",
-    "BosunForestEcology/DeadWood_Biomass@dev"
+    "BosunForestEcology/DeadWood_Biomass@main"
   ),
   times  = times,
   params = list(
