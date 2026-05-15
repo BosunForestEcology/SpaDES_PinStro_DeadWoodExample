@@ -5,7 +5,7 @@ projectPath <- getwd()
 
 source("R/example-data.R")  # myLiveCohortData, myRaster
 
-times <- list(start = 0, end = 300)
+times <- list(start = 0, end = 200)
 
 # Note: fallenSnags is not provided here; DeadWood_snagDecay Init() creates it
 # at time 0 (before DeadWood_DWDDecay's first receive event at time 5), so the
@@ -35,11 +35,12 @@ out <- SpaDES.project::setupProject(
   ),
   times  = times,
   params = list(
-    DeadWood_Mortality = list(baseMortality = 1),
+    DeadWood_Mortality = list(baseMortality = 0.001),
     DeadWood_snagDecay = list(species = c("Pinus strobus", "Pinus resinosa")),
     DeadWood_Biomass   = list(.plotInitialTime = 5)
   ),
   liveCohortData  = myLiveCohortData,
+  initialSnagTable = myInitialSnagData,
   studyAreaRaster = myRaster
 )
 
